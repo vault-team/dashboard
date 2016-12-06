@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Tenant Status" %}{% endblock %}
+
+{% block page_header %}
+{% include "horizon/common/_page_header.html" with title=_("Tenant Status") %}
+{% endblock page_header %}
+
+{% block main %}
+{% load i18n horizon humanize sizeformat %}
+
+<html>
+    <head><title>tenant_mppdb_charts</title></head>
+    <body>
+
+        <script src="https://code.highcharts.com/stock/highstock.js"></script>
+        <script>
+
+            REST_API_URI = "{{ DM_API }}";
+            var tenant_mppdb_status_checking_period = 5000;
+
+            function drawChart(tenant_mppdb_id) {
+
+                var activity_data = [];
+                var time_series = [];
+
+                var jsonData = $.ajax({
+                    url: REST_API_URI+'/v1.0/tenantmppdbs/'+tenant_mppdb_id+'/activities',
+                    dataType: 'json'
+                }).done(function (results) {
+
+                    console.log(REST_API_URI+'/v1.0/tenantmppdbs/' + tenant_mppdb_id + '/activities');
+
+                    //Initialize the data for the initial area chart
+                    results["tenant_mppdb_activities"].forEach(function (tenant_mppdb_activity) {
+
+                        time_series[time_series.length] = Date.parse((tenant_mppdb_activity.time));
+                        activity_data[activity_data.length] = tenant_mppdb_activity.value;
+
+                    });
+
+                    Highcharts.setOptions({
+                        global : {
+                            useUTC : false
+                        }
+                    });
+
+                    // Create the chart
+                    window.chart = new Highcharts.StockChart({
+
+                        chart : {
+                            type: 'area',
+                            renderTo: document.getElementById(tenant_mppdb_id),
+                            animation: false,
+                            events : {
+                                load : function () {
+                                    // set up the updating of the chart each second
+                                    var series = this.series[0];
+                                    setInterval(function () {
+                                        var jsonData = $.ajax({
+                                            url: REST_API_URI+'/v1.0/tenantmppdbs/'+tenant_mppdb_id+'/activities',
+                                            type: 'POST',
+                                            data: {'last_timestamp': new Date(time_series[0]).toGMTString()},
+                                            dataType: 'json'
+                                        }).done(function (results) {
+
+                                            console.log(REST_API_URI+'/v1.0/tenantmppdbs/' + tenant_mppdb_id + '/activities');
+                                            if(results["tenant_mppdb_activities"][0] != [] && results["tenant_mppdb_activities"][0] != undefined) {
+                                                var x = Date.parse(results["tenant_mppdb_activities"][0].time), // current time
+                                                        y = results["tenant_mppdb_activities"][0].value;
+                                                series.addPoint([x, y], true, true);
+                                                time_series[0] = x;
+                                            }
+
+                                        });
+
+                                    }, tenant_mppdb_status_checking_period);
+                                }
+                            }
+                        },
+                        xAxis: {
+                          title: {
+                              text: 'Time',
+                              style: {
+                                color: '#000000'
+                              }
+                            }
+                        },
+                        yAxis: {
+                          title: {
+                            text: 'Activity',
+                            style: {
+                                color: '#000000'
+                            }
+                          },
+                            opposite: false
+                        },
+                        series : [{
+                            name : 'Activity',
+                            data : (function () {
+
+                                var data = [];
+
+                                for (i = time_series.length-1; i >= 0 ; i -= 1) {
+                                    data.push([
+                                        time_series[i],
+                                        activity_data[i]
+                                    ]);
+                                }
+                                return data;
+                            }())
+                        }],
+
+                        rangeSelector: {
+                            buttons: [{
+                                count: 1,
+                                type: 'minute',
+                                text: '1M'
+                            }, {
+                                count: 5,
+                                type: 'minute',
+                                text: '5M'
+                            }, {
+                                type: 'all',
+                                text: 'All'
+                            }],
+                            inputEnabled: false,
+                            selected: 2
+                        },
+
+                        title : {
+                            text : 'Tenant Activity'
+                        },
+                        
+                        exporting: {
+                            enabled: false
+                        },
+                        plotOptions: {
+                            area: {
+                                fillColor:"rgba(115,188,211,0.4)",
+                                stacking: 'normal',
+                                lineColor: "rgba(115,188,211,1)",
+                                lineWidth: 1,
+                                marker: {
+                                    lineWidth: 1,
+                                    lineColor: "rgba(115,188,211,1)"
+                                }
+                            },
+                            series:{
+                                animation: false
+                            }
+                        },
+                        navigator : {
+                            enabled : false
+                        }
+                    });
+
+                });
+            }
+
+            window.onload =
+            function() {
+                var tenant_mppdbs = [];
+                var jsonData = $.ajax({
+                  url: REST_API_URI+'/v1.0/tenantmppdbs',
+                  dataType: 'json'
+                }).done(function (results) {
+
+                    results["tenant_mppdbs"].forEach(function(tenant_mppdb)  {
+
+                        tenant_mppdbs.push(tenant_mppdb.tenant_mppdb_id);
+
+                        var div_id = tenant_mppdb.tenant_mppdb_id;
+                        var tenant_mppdb_charts_div = document.createElement('div');
+
+                        var fieldset = document.createElement('fieldset');
+                        var legend = document.createElement ("legend");
+                        legend.innerHTML = 'Tenant '+tenant_mppdb.tenant_mppdb_id.toString();
+                        document.getElementById('tenant_mppdb_charts').appendChild(fieldset);
+                        fieldset.appendChild (legend);
+
+                        tenant_mppdb_charts_div.id = div_id;
+                        tenant_mppdb_charts_div.style.width = "900px";
+                        tenant_mppdb_charts_div.style.height = "250px";
+                        document.getElementById('tenant_mppdb_charts').appendChild(tenant_mppdb_charts_div);
+                        drawChart(div_id);
+                    });
+                });
+            }
+
+	</script>
+
+	<table>
+      <tr>
+         <td id='tenant_mppdb_search'> Tenant ID: </td>
+         <td> <input id='search_tmppdbid_text' type='text' name='tmppdbid' size='10'></td>
+         <td> <input type='button' value='Check' onclick= "location.href = '#'+ document.getElementById('search_tmppdbid_text').value;"> </td>
+      </tr>
+    </table>
+<div id='tenant_mppdb_charts'> </div>
+</body>
+</html>
+
+
+{% endblock %}
+
+

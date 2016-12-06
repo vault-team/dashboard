@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Parallel Database" %}{% endblock %}
+
+{% block page_header %}
+{% include "horizon/common/_page_header.html" with title=_("Parallel Database") %}
+{% endblock page_header %}
+
+{% block main %}
+{{ table.render }}
+<br>
+<form action="http://google.com">
+    <input type="submit" value="Download ConnectClient">
+</form>
+{% endblock %}
+

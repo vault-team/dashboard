@@ -1,0 +1,87 @@
+
+body,
+.page-header {
+	font-family: Ubuntu, Arial, "libra sans", sans-serif;
+}
+
+a,
+a:link,
+a:visited {
+  color: #0ca3df;
+}
+
+.topbar,
+.topbar .switcher_bar .btn.btn-topnav {
+	background: #0ca3df;
+}
+
+.topbar .switcher_bar .btn.btn-topnav {
+	border-color: #0ca3df;
+	color: $white;
+
+	&:hover,
+	&:focus {
+		border-color: $topbar-link-hover;
+		background: $topbar-link-hover;
+		color: $white;
+	}
+}
+
+.topbar h1.brand a {
+	background-image: url("../img/vault.png");
+	background-position: left 4px;
+}
+
+.btn-primary {
+	background: #0ca3df;
+	border-color: darken(#0ca3df, 5%);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.open > .btn-primary.dropdown-toggle {
+	background: lighten(#0ca3df, 5%);
+	border-color: #0ca3df;
+}
+
+.nav_accordion dt li a.active,
+.nav_accordion dd li a.active {
+	  border-left: 4px solid #0ca3df;
+	  color: #0ca3df;
+}
+
+#splash .login {
+                background-image: url("../img/vault_logo.png");
+		background-color: #0ca3df;
+                padding-top: 125px;
+                -moz-box-shadow: 0px 1px 3px 1px rgba(51,51,51,0.2);
+                -webkit-box-shadow: 0px 1px 3px 1px rgba(51,51,51,0.2);
+                box-shadow: 0px 1px 3px 1px rgba(51,51,51,0.2);
+
+                &:after {
+                        content: "Openstack Dashboard";
+                        position: absolute;
+                        top: 70px;
+                        color: #e8e8e9;
+                        display: block;
+                        text-align: center;
+                        width: 100%;
+                        font-size: 21px;
+                }
+               
+}
+
+#splash .login .modal-header {
+border-top: 1px solid #e8e8e9;
+background-color: #e8e8e9;
+}
+#splash .login .modal-body {
+border-top: 1px solid #e8e8e9;
+background-color: #e8e8e9;
+}
+#splash .login .modal-footer {
+border-top: 1px solid #e8e8e9;
+background-color: #e8e8e9;
+}

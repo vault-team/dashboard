@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+</head>
+
+<style>
+
+    body{
+        background-image: linear-gradient(to right, rgba(100, 100, 100, 0.2), transparent);
+    }
+
+    input, button {
+        margin-top: 10px;
+    }
+
+    #login{
+        margin-top: 50px;
+        background-color: rgb(255, 255, 255);
+        border-bottom-color: rgb(221, 221, 221);
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-image-outset: 0px;
+        border-image-repeat: stretch;
+        border-image-slice: 100%;
+        border-image-source: none;
+        border-image-width: 1;
+        border-left-color: rgb(221, 221, 221);
+        border-left-style: solid;
+        border-left-width: 1px;
+        border-right-color: rgb(221, 221, 221);
+        border-right-style: solid;
+        border-right-width: 1px;
+        border-top-color: rgb(221, 221, 221);
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+        border-top-style: solid;
+        border-top-width: 1px;
+        box-shadow: rgba(51, 51, 51, 0.2) 0px 1px 3px 1px;
+        box-sizing: border-box;
+    }
+
+    button.btn{
+        margin-bottom: 10px;
+        background-color: rgb(235, 84, 32);
+        background-image: none;
+        border-color:rgb(221, 72, 20);
+    }
+
+</style>
+<body>
+    <div class="container">
+        <div class="row">
+            <div id="login" class="col-sm-6 col-md-4 col-md-offset-4">
+                <div class="modal-header">
+                    <h1 class="text-center login-title">Register for Vault</h1>
+                </div>
+                <div class="modal-body">
+                    <div id="flash" class="alert alert-success" style="display: none">
+                    </div>
+
+                    <div class="account-wall">
+
+                        <input id="tenant_name" name="tenant_name" type="text" class="form-control" placeholder="User Name" required autofocus>
+                        <input id="tenant_password" name="tenant_password" type="password" class="form-control" placeholder="Password" required>
+                        <input id="tenant_password_confirm" type="password" class="form-control" placeholder="Confirm Password" required>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="submit" style="background-color:#0ca3df; border:2px blue " class="btn btn-primary pull-right">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script>
+
+    var flash_box = $("#flash");
+    var name_box = $("#tenant_name");
+    var password_box = $("#tenant_password");
+    var password_confirm = $("#tenant_password_confirm");
+    var confim_btn = $("#submit")
+
+    var fail_register_msg = "System Error ! Fail to register account";
+
+    var clean_box = function(){
+        flash_box.removeClass("alert-success alert-danger");
+        flash_box.html("");
+    }
+
+    var success = function(){
+        clean_box();
+        flash_box.addClass("alert-success");
+        flash_box.html("Successfully registered. Click <a href=\"{% url 'splash' %}\">Here</a> to back to the login page");
+        flash_box.css("display","")
+    }
+
+    var fail = function(msg){
+        clean_box();
+        flash_box.addClass("alert-danger");
+        flash_box.html(msg);
+        flash_box.css("display","")
+    }
+
+    var register_fail = function(){
+        fail(fail_register_msg)
+    }
+
+    var password_check = function(){
+        if(password_box.val() != password_confirm.val()){
+            fail("Confirm password is not matched");
+            return false;
+        }
+        return true;
+    }
+
+    var bind_confirm_btn_onclick = function(){
+        confim_btn.click(confirm_btn_handle);
+        confim_btn.button("reset");
+    }
+
+    var unbind_confirm_btn_onclick = function(){
+        confim_btn.unbind();
+        confim_btn.button("loading");
+    }
+
+    var getCookie = function(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    var before_send_register = function(xhr){
+        unbind_confirm_btn_onclick();
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+
+    var confirm_btn_handle = function(){
+        if(password_check()){
+            $.ajax({
+                type:'POST',
+                url:"{% url 'vault_register' %}",
+                data:{
+                    tenant_name:name_box.val(),
+                    tenant_password:password_box.val()
+                },
+                success:success,
+                error:register_fail,
+                beforeSend:before_send_register,
+                complete:bind_confirm_btn_onclick
+            })
+        }
+    }
+
+    bind_confirm_btn_onclick();
+
+</script>

@@ -1,0 +1,7 @@
+<tr {{ row.attr_string|safe }}>
+{% spaceless %}
+    {% for cell in row %}
+        {{ cell.render }}
+    {% endfor %}
+{% endspaceless %}
+</tr>

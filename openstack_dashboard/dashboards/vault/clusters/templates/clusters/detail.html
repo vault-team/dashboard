@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Parallel database details{% endblock %}
+
+{% block page_header %}
+  {% include "horizon/common/_page_header.html" with title=page_title %}
+{% endblock page_header %}
+
+{% block main %}
+  <div class="row">
+    <div class="col-sm-12">
+
+      <div class="info detail">
+        <h4>Parallel Database Information</h4>
+        <hr class="header_rule">
+        <dl class="dl-horizontal">
+          <dt>Tenant Name</dt>
+          <dd>{{ cluster.tenant_mppdb_name }}</dd>
+          <dt>Tenant ID</dt>
+          <dd>{{ cluster.id }}</dd>
+        </dl>
+
+         <h4>Parallel Database Status</h4>
+         <hr class="header_rule">
+         <dl class="dl-horizontal">
+            <dt>Status</dt>
+            <dd>{{cluster.get_status}}</dd>
+         </dl>
+
+         <h4>Node Information</h4>
+          <hr class="header_rule">
+          <dl class="dl-horizontal">
+            <dt>Flavor</dt>
+            <dd><b>Flavor Name: </b>{{ cluster.flavor }}</dd>
+            <dd><b>Root Disk (GB): </b>{{ cluster.get_flavor_info.disk }}</dd>
+            <dd><b>Ephemeral Disk (GB): </b>{{ cluster.get_flavor_info.ephemeral }}</dd>
+            <dd><b>RAM (MB): </b>{{ cluster.get_flavor_info.ram }}</dd>
+            <dd><b>Swap Disk (MB): </b>{{ cluster.get_flavor_info.swap }}</dd>
+            <dd><b>VCPUs: </b>{{ cluster.get_flavor_info.vcpus }}</dd>
+          </dl>
+
+          <h4>Connection String</h4>
+          <hr class="header_rule">
+          <dl class="dl-horizontal">
+            <dt>JDBC:</dt>
+            <dd>{{ cluster.get_connection_string }}</dd>
+          </dl>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}
+

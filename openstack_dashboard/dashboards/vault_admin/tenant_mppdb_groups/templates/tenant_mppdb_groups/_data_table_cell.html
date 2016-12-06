@@ -1,0 +1,27 @@
+{% if cell.column.name == "consolidation_effectiveness" %}
+    <td {{ cell.attr_string|safe }} style="width:50%">
+        <div class="progress">
+            <div class="progress-bar {% if cell.value > 60 %} progress-bar-success {% else %} progress-bar-warning {% endif %}" role="progressbar" aria-valuenow="{{ cell.value }}"
+                 aria-valuemin="0" aria-valuemax="100" style="width:{{cell.progress_bar_width}}%">
+                {{ cell.value|floatformat:"-1" }}％
+            </div>
+        </div>
+    </td>
+{% elif cell.column.name == "sla_ok" %}
+    <td>
+        {% if cell.value %}
+            <span class="glyphicon glyphicon-ok" style="color:green"></span>
+        {% else %}
+            <span class="glyphicon glyphicon-remove" style="color:red"></span>
+        {% endif %}
+    </td>
+{% elif cell.column.name == "tenant_mppdb_members" %}
+    <td>
+        Tenant
+        {% for tenant in cell.value %}
+            #{{ tenant }}
+        {% endfor %}
+    </td>
+{% else %}
+    {% include "horizon/common/_data_table_cell.html" %}
+{% endif %}

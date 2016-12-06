@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Users" %}{% endblock %}
+
+{% block page_header %}
+{% include "horizon/common/_page_header.html" with title=_("Users") %}
+{% endblock page_header %}
+
+{% block main %}
+<p>**Please go to Parallel Database Application page to create parallel database first and then create user credentials to access parallel database.**</p>
+{{ table.render }}
+{% endblock %}
+
+
