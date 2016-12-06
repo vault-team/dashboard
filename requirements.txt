@@ -1,1 +1,0 @@
-leonardo_horizon == 2015.10.0
